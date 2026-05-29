@@ -60,13 +60,25 @@ convertBtn.addEventListener('click', convert);
 
 downloadBtn.addEventListener('click', () => {
   if (!lastSvg) return;
-  const blob = new Blob([lastSvg], { type: 'image/svg+xml;charset=utf-8' });
+
+  const blob = new Blob([lastSvg], {
+    type: 'image/svg+xml;charset=utf-8'
+  });
+
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'converted-image.svg';
-  a.click();
-  URL.revokeObjectURL(url);
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'converted-image.svg';
+
+  document.body.appendChild(link);
+  link.click();
+
+  document.body.removeChild(link);
+
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+  }, 1000);
 });
 
 input.addEventListener('change', () => {

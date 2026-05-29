@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Color Extract</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css" />
+  <script defer src="../js/color-extract.js"></script>
+</head>
+<body>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <div class="page-shell">
+    <div class="page-header">
+      <div class="brand">
+        <div class="brand-mark">AK</div>
+        <div>
+          <div class="brand-title">Color Extract</div>
+          <div class="brand-subtitle">Eigene Datei für das Tool</div>
+        </div>
+      </div>
+      <a class="back-link" href="../index.html">← Zur Startseite</a>
+    </div>
+
+    <section class="card tool-hero">
+      <h1>Farbcodes aus Bildern extrahieren</h1>
+      <p>
+        Lade ein Bild hoch und erhalte eine automatisch erzeugte Palette mit dominanten Farben inklusive Hex-Code.
+      </p>
+
+      <div class="controls">
+        <input class="file-input" id="colorInput" type="file" accept="image/*" />
+        <div class="input-row">
+          <label class="helper" for="paletteSize">Anzahl Farben</label>
+          <select class="select" id="paletteSize">
+            <option value="3">3</option>
+            <option value="5" selected>5</option>
+            <option value="7">7</option>
+            <option value="10">10</option>
+          </select>
+          <button class="btn btn-primary" id="extractBtn" type="button">Farben extrahieren</button>
+        </div>
+        <p class="helper">Du kannst jede Farbe mit einem Klick kopieren.</p>
+      </div>
+    </section>
+
+    <section class="tool-layout" style="margin-top:18px;">
+      <div class="card preview-box" id="imagePreview">
+        <div class="helper">Bildvorschau erscheint hier</div>
+      </div>
+
+      <div class="card" style="padding:22px;">
+        <div class="section-heading" style="margin-bottom:10px;">
+          <h2>Palette</h2>
+          <p>Dominante Farben als Hex-Farbcodes.</p>
+        </div>
+        <div class="palette-grid" id="paletteGrid"></div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

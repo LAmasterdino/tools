@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Alles konvertiert Webseite mit PNG zu SVG Converter und Color Extract Tool." />
+  <title>Alles Konvertiert</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">AK</div>
+      <div>
+        <div class="brand-title">Alles Konvertiert</div>
+        <div class="brand-subtitle">Tools für GitHub Pages</div>
+      </div>
+    </div>
+    <a class="ghost-link" href="#tools">Zu den Tools</a>
+  </header>
+
+  <main class="container">
+    <section class="hero card">
+      <div class="hero-copy">
+        <span class="pill">Modern · Schnell · Kostenlos</span>
+        <h1>Eine saubere Webseite für Konvertierung und Farbanalyse</h1>
+        <p>
+          Zwei praktische Tools in einem schönen, responsiven Design:
+          ein PNG-zu-SVG-Converter und ein Farbcode-Extractor.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="tools/png-to-svg.html">PNG zu SVG öffnen</a>
+          <a class="btn btn-secondary" href="tools/color-extract.html">Color Extract öffnen</a>
+        </div>
+      </div>
+      <div class="hero-panel">
+        <div class="stat">
+          <div class="stat-value">2</div>
+          <div class="stat-label">eigene Tool-Seiten</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">100%</div>
+          <div class="stat-label">GitHub-Pages-tauglich</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">Responsive</div>
+          <div class="stat-label">für Desktop & Mobile</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tools" class="section">
+      <div class="section-heading">
+        <h2>Tools</h2>
+        <p>Jedes Projekt hat eine eigene Datei und ist direkt über die Hauptseite erreichbar.</p>
+      </div>
+
+      <div class="grid">
+        <a class="tool-card card" href="tools/png-to-svg.html">
+          <div class="tool-icon">🖼️</div>
+          <h3>PNG zu SVG Converter</h3>
+          <p>Lade ein PNG hoch und lasse es direkt im Browser in eine SVG-Datei umwandeln.</p>
+        </a>
+
+        <a class="tool-card card" href="tools/color-extract.html">
+          <div class="tool-icon">🎨</div>
+          <h3>Color Extract</h3>
+          <p>Extrahiere dominante Farben und kopiere die Hex-Farbcodes mit einem Klick.</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <h2>Projektstruktur</h2>
+        <p>Sauber getrennte Dateien für Design, Logik und jede einzelne Seite.</p>
+      </div>
+
+      <div class="structure card">
+<pre>/
+├── index.html
+├── css/
+│   └── style.css
+├── js/
+│   ├── png-to-svg.js
+│   └── color-extract.js
+└── tools/
+    ├── png-to-svg.html
+    └── color-extract.html</pre>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Für GitHub Pages optimiert. Alle Seiten funktionieren mit relativen Pfaden.</p>
+  </footer>
+</body>
+</html>

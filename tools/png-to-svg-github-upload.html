@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="referrer" content="no-referrer" />
+  <title>PNG zu SVG Converter mit GitHub Upload</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="../js/imagetracer_v1.2.6.js"></script>
+  <style>
+    :root {
+      --bg: #07101f;
+      --panel: rgba(12, 20, 36, .78);
+      --panel2: rgba(16, 24, 40, .88);
+      --line: rgba(148, 163, 184, .16);
+      --text: #e8eef8;
+      --muted: #9fb0ca;
+      --primary: #7c3aed;
+      --accent: #22d3ee;
+      --ok: #10b981;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --radius: 24px;
+      --radius-sm: 16px;
+      --shadow: 0 28px 80px rgba(0,0,0,.38);
+      --max: 1180px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(124,58,237,.28), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(34,211,238,.16), transparent 28%),
+        linear-gradient(180deg, #050816 0%, #07101f 100%);
+    }
+    a { color: inherit; text-decoration: none; }
+    .glow {
+      position: fixed;
+      width: 32rem; height: 32rem;
+      border-radius: 999px;
+      filter: blur(100px);
+      opacity: .32;
+      pointer-events: none;
+    }
+    .glow.one { top: -12rem; left: -12rem; background: rgba(124,58,237,.5); }
+    .glow.two { bottom: -14rem; right: -10rem; background: rgba(34,211,238,.25); }
+
+    .shell { position: relative; z-index: 1; max-width: var(--max); margin: 0 auto; padding: 20px; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center; gap: 16px;
+      padding: 8px 0 18px;
+    }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .mark {
+      width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      font-weight: 800; box-shadow: var(--shadow);
+    }
+    .brand-title { font-weight: 800; letter-spacing: -.03em; }
+    .brand-sub { color: var(--muted); font-size: .94rem; margin-top: 2px; }
+    .navlink, .btn, .input, .select, .textarea {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+    }
+    .navlink, .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 8px; padding: 12px 16px; font-weight: 700;
+      transition: transform .2s ease, background .2s ease, border-color .2s ease;
+      cursor: pointer;
+    }
+    .navlink:hover, .btn:hover { transform: translateY(-2px); }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), #4f46e5); border-color: transparent; }
+    .btn-secondary { background: rgba(255,255,255,.03); }
+    .btn-success { background: rgba(16,185,129,.14); border-color: rgba(16,185,129,.22); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    .card {
+      background: linear-gradient(180deg, rgba(16, 24, 40, .88), rgba(9, 14, 26, .94));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+    .hero { padding: 30px; display: grid; grid-template-columns: 1.2fr .8fr; gap: 18px; align-items: start; }
+    .pill {
+      display: inline-flex; padding: 8px 14px; border-radius: 999px;
+      background: rgba(124,58,237,.12); border: 1px solid rgba(124,58,237,.25);
+      color: #dccfff; font-size: .9rem; margin-bottom: 14px;
+    }
+    h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.8rem); line-height: .98; letter-spacing: -.06em; }
+    .lead { margin: 14px 0 0; color: var(--muted); line-height: 1.65; max-width: 70ch; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+    .mini-grid { display: grid; gap: 12px; }
+    .mini {
+      padding: 16px 18px; border-radius: 18px; border: 1px solid var(--line); background: rgba(255,255,255,.04);
+    }
+    .mini b { display: block; font-size: 1.1rem; margin-bottom: 6px; }
+    .mini span { color: var(--muted); font-size: .95rem; line-height: 1.55; }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
+    .section { padding: 24px; }
+    .section h2 { margin: 0 0 10px; font-size: 1.4rem; letter-spacing: -.03em; }
+    .section p { margin: 0; color: var(--muted); line-height: 1.6; }
+
+    .account-head, .toolbar, .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .account-box { margin-top: 16px; display: grid; gap: 12px; }
+    .field { display: grid; gap: 8px; }
+    .label { color: #dbe7ff; font-weight: 600; font-size: .95rem; }
+    .input, .select, .textarea {
+      width: 100%; padding: 13px 14px; outline: none;
+    }
+    .textarea { min-height: 92px; resize: vertical; }
+    .input::placeholder, .textarea::placeholder { color: #7f90ad; }
+
+    .preview {
+      min-height: 290px;
+      display: grid; place-items: center;
+      overflow: hidden;
+      padding: 18px;
+    }
+    .preview img, .preview svg { max-width: 100%; max-height: 100%; display: block; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 12px; border-radius: 999px;
+      background: rgba(255,255,255,.05); border: 1px solid var(--line); color: var(--muted);
+    }
+    .status {
+      padding: 14px 16px; border-radius: 16px;
+      border: 1px solid var(--line); background: rgba(255,255,255,.04);
+      color: var(--muted); line-height: 1.6;
+      white-space: pre-wrap;
+    }
+    .status.ok { color: #d7ffef; border-color: rgba(16,185,129,.22); background: rgba(16,185,129,.08); }
+    .status.err { color: #ffd6d6; border-color: rgba(239,68,68,.24); background: rgba(239,68,68,.08); }
+    .output {
+      width: 100%; min-height: 190px; border-radius: 18px; padding: 16px;
+      background: rgba(4,8,20,.7); color: #dbe7ff; border: 1px solid var(--line);
+      white-space: pre-wrap; word-break: break-word; overflow: auto;
+      font: 13px/1.55 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+    .foot {
+      padding: 18px 0 34px; color: var(--muted); font-size: .95rem;
+    }
+    .hidden { display: none !important; }
+    @media (max-width: 900px) {
+      .hero, .grid { grid-template-columns: 1fr; }
+      .topbar { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="glow one"></div>
+  <div class="glow two"></div>
+
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand">
+        <div class="mark">AK</div>
+        <div>
+          <div class="brand-title">PNG zu SVG Converter</div>
+          <div class="brand-sub">mit GitHub-Repo-Upload</div>
+        </div>
+      </div>
+      <a class="navlink" href="../index.html">← Zur Startseite</a>
+    </div>
+
+    <section class="card hero">
+      <div>
+        <span class="pill">Browserbasiert · GitHub API · GitHub Pages</span>
+        <h1>PNG umwandeln, in ein Ziel-Repo speichern und direkt verlinken</h1>
+        <p class="lead">
+          Diese Version speichert deine GitHub-Zugangsdaten lokal im Browser, lädt die erzeugte SVG per GitHub Contents API
+          in ein frei wählbares Repository hoch und zeigt dir danach den direkten Download-Link an.
+        </p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" id="convertBtn" type="button">PNG konvertieren</button>
+          <button class="btn btn-success" id="uploadBtn" type="button" disabled>In GitHub-Repo speichern</button>
+          <button class="btn btn-secondary" id="openLinkBtn" type="button" disabled>Download-Link öffnen</button>
+        </div>
+      </div>
+
+      <div class="mini-grid">
+        <div class="mini">
+          <b>1. Upload</b>
+          <span>Lege Token, Owner, Repo, Branch und Zielpfad im Account-Menü fest.</span>
+        </div>
+        <div class="mini">
+          <b>2. Speichern</b>
+          <span>Die SVG wird als Base64 über die GitHub Contents API erstellt oder aktualisiert.</span>
+        </div>
+        <div class="mini">
+          <b>3. Teilen</b>
+          <span>Nach dem Upload bekommst du einen direkten Raw-Download-Link.</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card section">
+        <div class="account-head">
+          <div>
+            <h2>Account-Menü</h2>
+            <p>Token und Zielrepo werden im Browser gespeichert.</p>
+          </div>
+          <span class="badge" id="accountState">Nicht gespeichert</span>
+        </div>
+
+        <div class="account-box">
+          <div class="field">
+            <div class="label">GitHub Token</div>
+            <input class="input" id="tokenInput" type="password" placeholder="ghp_... oder fine-grained token" autocomplete="off" />
+          </div>
+
+          <div class="row">
+            <div class="field" style="flex:1; min-width:180px;">
+              <div class="label">Owner</div>
+              <input class="input" id="ownerInput" type="text" placeholder="dein-name-oder-org" autocomplete="off" />
+            </div>
+            <div class="field" style="flex:1; min-width:180px;">
+              <div class="label">Repo</div>
+              <input class="input" id="repoInput" type="text" placeholder="ziel-repository" autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field" style="flex:1; min-width:180px;">
+              <div class="label">Branch</div>
+              <input class="input" id="branchInput" type="text" placeholder="main" />
+            </div>
+            <div class="field" style="flex:1; min-width:180px;">
+              <div class="label">Zielordner</div>
+              <input class="input" id="folderInput" type="text" placeholder="exports/svg" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field" style="flex:1; min-width:180px;">
+              <div class="label">Dateiname-Präfix</div>
+              <input class="input" id="prefixInput" type="text" placeholder="converted-image" />
+            </div>
+            <div class="field" style="flex:1; min-width:180px;">
+              <div class="label">Commit-Text</div>
+              <input class="input" id="messageInput" type="text" placeholder="Add converted SVG" />
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <button class="btn btn-primary" id="saveAccountBtn" type="button">Speichern</button>
+            <button class="btn btn-secondary" id="clearAccountBtn" type="button">Löschen</button>
+          </div>
+
+          <div class="status" id="accountHint">
+            Für private Repositories brauchst du einen Token mit Contents-Schreibrechten.
+          </div>
+        </div>
+      </section>
+
+      <section class="card section">
+        <h2>PNG-Datei</h2>
+        <p>Wähle eine PNG-Datei aus und konvertiere sie direkt im Browser.</p>
+
+        <div class="account-box">
+          <input class="input" id="pngInput" type="file" accept="image/png" />
+          <div class="row">
+            <div class="field" style="flex:1; min-width:180px;">
+              <div class="label">Details</div>
+              <select class="select" id="detailSelect">
+                <option value="4">Sehr hoch</option>
+                <option value="8" selected>Hoch</option>
+                <option value="12">Mittel</option>
+                <option value="16">Einfach</option>
+              </select>
+            </div>
+            <div class="field" style="flex:1; min-width:180px;">
+              <div class="label">SVG-Dateiname</div>
+              <input class="input" id="filenameInput" type="text" placeholder="converted-image.svg" />
+            </div>
+          </div>
+
+          <div class="status" id="flowStatus">
+            Noch keine Datei geladen.
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="grid">
+      <section class="card preview section">
+        <div style="width:100%;">
+          <h2>Vorschau</h2>
+          <p>Hier siehst du das PNG oder die erzeugte SVG.</p>
+        </div>
+        <div class="card preview" id="previewBox" style="width:100%; min-height:300px; border-radius:20px;">
+          <span class="badge">Vorschau erscheint hier</span>
+        </div>
+      </section>
+
+      <section class="card section">
+        <h2>Ergebnis</h2>
+        <p>SVG-Code, Upload-Status und Download-Link.</p>
+
+        <div class="account-box">
+          <div class="field">
+            <div class="label">SVG-Ausgabe</div>
+            <textarea id="svgOutput" class="textarea output" readonly placeholder="SVG-Code erscheint hier..."></textarea>
+          </div>
+
+          <div class="field">
+            <div class="label">Upload-Link</div>
+            <input class="input" id="downloadUrlInput" type="text" readonly placeholder="Nach Upload erscheint hier der Raw-Link" />
+          </div>
+
+          <div class="toolbar">
+            <a class="btn btn-success hidden" id="downloadUrlBtn" href="#" target="_blank" rel="noopener">Direkt zum Download</a>
+            <button class="btn btn-secondary" id="copyUrlBtn" type="button" disabled>Link kopieren</button>
+          </div>
+
+          <div class="status" id="uploadStatus">
+            Noch kein Upload durchgeführt.
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="foot">
+      Hinweis: GitHub empfiehlt für die REST API einen `Accept: application/vnd.github+json` Header und Authentifizierung mit Token; der Contents-Endpunkt erwartet den Dateiinhalt Base64-kodiert und beim Aktualisieren zusätzlich die Datei-SHA. Ein Raw-Download-Link ist über die Inhalts-API bzw. `raw.githubusercontent.com` verfügbar. citeturn830130view1turn751753view0turn751753view2
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "ak_png2svg_github_settings_v1";
+
+    const els = {
+      tokenInput: document.getElementById("tokenInput"),
+      ownerInput: document.getElementById("ownerInput"),
+      repoInput: document.getElementById("repoInput"),
+      branchInput: document.getElementById("branchInput"),
+      folderInput: document.getElementById("folderInput"),
+      prefixInput: document.getElementById("prefixInput"),
+      messageInput: document.getElementById("messageInput"),
+      saveAccountBtn: document.getElementById("saveAccountBtn"),
+      clearAccountBtn: document.getElementById("clearAccountBtn"),
+      accountState: document.getElementById("accountState"),
+      accountHint: document.getElementById("accountHint"),
+      pngInput: document.getElementById("pngInput"),
+      detailSelect: document.getElementById("detailSelect"),
+      filenameInput: document.getElementById("filenameInput"),
+      flowStatus: document.getElementById("flowStatus"),
+      previewBox: document.getElementById("previewBox"),
+      convertBtn: document.getElementById("convertBtn"),
+      uploadBtn: document.getElementById("uploadBtn"),
+      openLinkBtn: document.getElementById("openLinkBtn"),
+      svgOutput: document.getElementById("svgOutput"),
+      downloadUrlInput: document.getElementById("downloadUrlInput"),
+      downloadUrlBtn: document.getElementById("downloadUrlBtn"),
+      copyUrlBtn: document.getElementById("copyUrlBtn"),
+      uploadStatus: document.getElementById("uploadStatus"),
+    };
+
+    let state = {
+      svg: "",
+      rawUrl: "",
+      htmlUrl: "",
+      fileName: "",
+      dataUrl: "",
+      settings: null,
+    };
+
+    function setStatus(el, message, type = "") {
+      el.className = "status" + (type ? ` ${type}` : "");
+      el.textContent = message;
+    }
+
+    function setFlow(message, type = "") {
+      setStatus(els.flowStatus, message, type);
+    }
+
+    function fileNameFromInput(name) {
+      const clean = (name || "converted-image.svg").trim();
+      return clean.toLowerCase().endsWith(".svg") ? clean : `${clean}.svg`;
+    }
+
+    function normalizeFolder(folder) {
+      return (folder || "").trim().replace(/^\/+|\/+$/g, "");
+    }
+
+    function sanitizePathPart(value) {
+      return (value || "").trim().replace(/[^\w\-./]+/g, "-").replace(/\/+/g, "/").replace(/^\/+/, "");
+    }
+
+    function loadSettings() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    }
+
+    function saveSettings() {
+      const settings = {
+        token: els.tokenInput.value.trim(),
+        owner: els.ownerInput.value.trim(),
+        repo: els.repoInput.value.trim(),
+        branch: els.branchInput.value.trim() || "main",
+        folder: normalizeFolder(els.folderInput.value),
+        prefix: sanitizePathPart(els.prefixInput.value.trim() || "converted-image"),
+        message: els.messageInput.value.trim() || "Add converted SVG",
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+      state.settings = settings;
+      renderAccountState();
+      setStatus(
+        els.accountHint,
+        "Gespeichert im Browser. Für private Repositories braucht der Token Contents: write auf dem Ziel-Repo.",
+        "ok"
+      );
+      refreshUploadButton();
+    }
+
+    function clearSettings() {
+      localStorage.removeItem(STORAGE_KEY);
+      state.settings = null;
+      els.tokenInput.value = "";
+      els.ownerInput.value = "";
+      els.repoInput.value = "";
+      els.branchInput.value = "main";
+      els.folderInput.value = "";
+      els.prefixInput.value = "converted-image";
+      els.messageInput.value = "Add converted SVG";
+      renderAccountState();
+      setStatus(els.accountHint, "Gespeicherte Daten wurden entfernt.", "");
+      refreshUploadButton();
+    }
+
+    function renderAccountState() {
+      const s = state.settings || loadSettings();
+      if (s && s.token && s.owner && s.repo) {
+        const masked = s.token.length > 8 ? `${s.token.slice(0, 4)}…${s.token.slice(-4)}` : "gespeichert";
+        els.accountState.textContent = `Gespeichert: ${s.owner}/${s.repo} · ${masked}`;
+      } else {
+        els.accountState.textContent = "Nicht gespeichert";
+      }
+    }
+
+    function restoreSettingsToForm() {
+      const s = loadSettings();
+      if (!s) {
+        els.branchInput.value = "main";
+        els.prefixInput.value = "converted-image";
+        els.messageInput.value = "Add converted SVG";
+        renderAccountState();
+        return;
+      }
+      els.tokenInput.value = s.token || "";
+      els.ownerInput.value = s.owner || "";
+      els.repoInput.value = s.repo || "";
+      els.branchInput.value = s.branch || "main";
+      els.folderInput.value = s.folder || "";
+      els.prefixInput.value = s.prefix || "converted-image";
+      els.messageInput.value = s.message || "Add converted SVG";
+      state.settings = s;
+      renderAccountState();
+      setStatus(els.accountHint, "Browser-Einstellungen geladen.", "");
+    }
+
+    function dataUrlToImage(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+      });
+    }
+
+    function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function updatePreviewFromDataUrl(dataUrl) {
+      els.previewBox.innerHTML = `<img src="${dataUrl}" alt="PNG Vorschau" />`;
+    }
+
+    function updatePreviewFromSvg(svg) {
+      els.previewBox.innerHTML = svg;
+    }
+
+    function refreshUploadButton() {
+      const s = state.settings || loadSettings();
+      const ready = Boolean(state.svg && s && s.token && s.owner && s.repo);
+      els.uploadBtn.disabled = !ready;
+      els.openLinkBtn.disabled = !Boolean(state.rawUrl);
+      els.copyUrlBtn.disabled = !Boolean(state.rawUrl);
+      if (state.rawUrl) {
+        els.downloadUrlInput.value = state.rawUrl;
+        els.downloadUrlBtn.href = state.rawUrl;
+        els.downloadUrlBtn.classList.remove("hidden");
+      } else {
+        els.downloadUrlInput.value = "";
+        els.downloadUrlBtn.classList.add("hidden");
+      }
+    }
+
+    function base64EncodeUtf8(str) {
+      return btoa(unescape(encodeURIComponent(str)));
+    }
+
+    function uniqueSvgName() {
+      const base = sanitizePathPart(els.prefixInput.value.trim() || "converted-image").replace(/\.svg$/i, "");
+      const now = new Date();
+      const stamp = [
+        now.getFullYear(),
+        String(now.getMonth() + 1).padStart(2, "0"),
+        String(now.getDate()).padStart(2, "0"),
+        "-",
+        String(now.getHours()).padStart(2, "0"),
+        String(now.getMinutes()).padStart(2, "0"),
+        String(now.getSeconds()).padStart(2, "0"),
+      ].join("");
+      return `${base}-${stamp}.svg`;
+    }
+
+    async function convertPngToSvg() {
+      const file = els.pngInput.files?.[0];
+      if (!file) {
+        setFlow("Bitte zuerst eine PNG-Datei auswählen.", "err");
+        return;
+      }
+      if (!window.ImageTracer) {
+        setFlow("ImageTracer wurde nicht geladen. Lege die lokale Datei ../js/imagetracer_v1.2.6.js ab oder binde sie korrekt ein.", "err");
+        return;
+      }
+
+      setFlow("Konvertiere PNG zu SVG …");
+      const dataUrl = await fileToDataUrl(file);
+      state.dataUrl = dataUrl;
+      updatePreviewFromDataUrl(dataUrl);
+
+      const img = await dataUrlToImage(dataUrl);
+      const detail = Number(els.detailSelect.value);
+      const options = {
+        ltres: 1 / detail,
+        qtres: 1 / detail,
+        pathomit: Math.max(2, Math.round(detail / 2)),
+        numberofcolors: 16,
+        scale: 1,
+        strokewidth: 0,
+        desc: true,
+      };
+
+      const svgString = ImageTracer.imagedataToSVG(ImageTracer.getImgdata(img), options);
+      state.svg = svgString;
+      state.fileName = fileNameFromInput(els.filenameInput.value || uniqueSvgName());
+      els.svgOutput.value = svgString;
+      updatePreviewFromSvg(svgString);
+
+      setFlow("SVG wurde erzeugt. Du kannst sie jetzt in das Ziel-Repo speichern.", "ok");
+      refreshUploadButton();
+    }
+
+    async function getExistingSha(owner, repo, path, token, branch) {
+      const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${path}?ref=${encodeURIComponent(branch)}`;
+      const res = await fetch(url, {
+        headers: {
+          "Accept": "application/vnd.github+json",
+          "Authorization": `Bearer ${token}`,
+          "X-GitHub-Api-Version": "2026-03-10",
+        },
+      });
+
+      if (res.status === 404) return null;
+      if (!res.ok) {
+        throw new Error(`GitHub GET fehlgeschlagen: ${res.status} ${res.statusText}`);
+      }
+      const data = await res.json();
+      return data?.sha || null;
+    }
+
+    function buildRawUrl(owner, repo, branch, path) {
+      return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${path}`;
+    }
+
+    function buildHtmlUrl(owner, repo, branch, path) {
+      return `https://github.com/${owner}/${repo}/blob/${branch}/${path}`;
+    }
+
+    async function uploadSvg() {
+      const s = state.settings || loadSettings();
+      if (!s || !s.token || !s.owner || !s.repo) {
+        setStatus(els.uploadStatus, "Bitte zuerst Token, Owner und Repo speichern.", "err");
+        return;
+      }
+      if (!state.svg) {
+        setStatus(els.uploadStatus, "Bitte zuerst eine SVG erzeugen.", "err");
+        return;
+      }
+
+      const branch = (s.branch || "main").trim();
+      const folder = normalizeFolder(s.folder);
+      const fileName = fileNameFromInput(els.filenameInput.value || state.fileName || uniqueSvgName());
+      const path = folder ? `${folder}/${fileName}` : fileName;
+
+      try {
+        setStatus(els.uploadStatus, "Lade SVG ins GitHub-Repo hoch …");
+        const sha = await getExistingSha(s.owner, s.repo, path, s.token, branch).catch(() => null);
+
+        const body = {
+          message: s.message || "Add converted SVG",
+          content: base64EncodeUtf8(state.svg),
+          branch,
+        };
+        if (sha) body.sha = sha;
+
+        const res = await fetch(`https://api.github.com/repos/${encodeURIComponent(s.owner)}/${encodeURIComponent(s.repo)}/contents/${path}`, {
+          method: "PUT",
+          headers: {
+            "Accept": "application/vnd.github+json",
+            "Authorization": `Bearer ${s.token}`,
+            "Content-Type": "application/json",
+            "X-GitHub-Api-Version": "2026-03-10",
+          },
+          body: JSON.stringify(body),
+        });
+
+        const payload = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          const msg = payload?.message || `${res.status} ${res.statusText}`;
+          throw new Error(msg);
+        }
+
+        const rawUrl = payload?.content?.download_url || buildRawUrl(s.owner, s.repo, branch, path);
+        const htmlUrl = payload?.content?.html_url || buildHtmlUrl(s.owner, s.repo, branch, path);
+
+        state.rawUrl = rawUrl;
+        state.htmlUrl = htmlUrl;
+        els.downloadUrlInput.value = rawUrl;
+        els.downloadUrlBtn.href = rawUrl;
+        els.downloadUrlBtn.classList.remove("hidden");
+        els.downloadUrlBtn.textContent = "Direkt zum Download";
+        setStatus(
+          els.uploadStatus,
+          `Upload erfolgreich: ${path}\nRaw-Link: ${rawUrl}\nGitHub-Seite: ${htmlUrl}`,
+          "ok"
+        );
+        refreshUploadButton();
+      } catch (err) {
+        setStatus(
+          els.uploadStatus,
+          `Upload fehlgeschlagen: ${err.message}\nStelle sicher, dass dein Token für das Ziel-Repo Contents: write besitzt.`,
+          "err"
+        );
+      }
+    }
+
+    document.getElementById("saveAccountBtn").addEventListener("click", saveSettings);
+    document.getElementById("clearAccountBtn").addEventListener("click", clearSettings);
+    els.convertBtn.addEventListener("click", convertPngToSvg);
+    els.uploadBtn.addEventListener("click", uploadSvg);
+    els.openLinkBtn.addEventListener("click", () => {
+      if (state.rawUrl) window.open(state.rawUrl, "_blank", "noopener");
+    });
+    els.copyUrlBtn.addEventListener("click", async () => {
+      if (!state.rawUrl) return;
+      await navigator.clipboard.writeText(state.rawUrl);
+      const old = els.copyUrlBtn.textContent;
+      els.copyUrlBtn.textContent = "Kopiert!";
+      setTimeout(() => els.copyUrlBtn.textContent = old, 900);
+    });
+
+    els.pngInput.addEventListener("change", () => {
+      const file = els.pngInput.files?.[0];
+      if (file) {
+        setFlow(`Datei geladen: ${file.name}. Jetzt auf „PNG konvertieren“ klicken.`);
+      }
+      refreshUploadButton();
+    });
+
+    els.filenameInput.addEventListener("input", refreshUploadButton);
+
+    restoreSettingsToForm();
+    refreshUploadButton();
+  </script>
+</body>
+</html>
